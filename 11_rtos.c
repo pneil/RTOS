@@ -1,15 +1,6 @@
-// RTOS Framework - Fall 2019
-// J Losh
+// RTOS
+// Name: Neelkanth Patel
 
-// Student Name: Neelkanth Patel
-// TO DO: Add your name on this line.  Do not include your ID number in the file.
-
-// Add xx_ prefix to all files in your project
-// xx_rtos.c
-// xx_tm4c123gh6pm_startup_ccs.c
-// xx_other files
-// (xx is a unique number that will be issued in class)
-// Please do not change any function name in this code or the thread priorities
 
 //-----------------------------------------------------------------------------
 // Hardware Target
@@ -233,21 +224,6 @@ struct _fic
 
 uint32_t heap[MAX_TASKS][256] __attribute__((aligned (1024)));
 
-//uint32_t HEAP[24576];
-//#pragma DATA_ALIGN(HEAP,1024);
-
-//uint32_t HEAP[8*256];
-//
-//#pragma DATA_ALIGN(neil,1024)
-//uint32_t neil[MAX_TASKS][256];
-
-//__align(1024) uint32_t HH[256]{};
-//#pragma DATA_SECTION(heap ".heap")
-//
-//#pragma LOCATION(heap,0x20001000)
-//uint32_t heap[MAX_TASKS][256];
-
-//uint32_t neil __attribute__((location(0x20001400)));
 //-----------------------------------------------------------------------------
 // RTOS Kernel Functions
 //-----------------------------------------------------------------------------
@@ -311,11 +287,6 @@ int rtosScheduler()
     return task;
 }
 
-//uint32_t *PSTACK(int x)
-//{
-//     return  (uint32_t*)(heap+(x*1024));
-//}
-
 bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackBytes)
 {
     bool ok = false;
@@ -339,11 +310,11 @@ bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackByt
             while (tcb[i].state != STATE_INVALID) {i++;}
             tcb[i].state = STATE_UNRUN;
             tcb[i].pid = fn;
-            tcb[i].sp = &heap[i][255];      //PSTACK(i);;//&heap[i][255];           //PSTACK(i);                                //set the starting address of the SP function with array
-            tcb[i].spInit = &heap[i][255];  // PSTACK(i);;// &heap[i][0];           //PSTACK(i);
+            tcb[i].sp = &heap[i][255];                                   //set the starting address of the SP function with array
+            tcb[i].spInit = &heap[i][255];
             tcb[i].priority = priority;
             tcb[i].currentPriority = priority;
-            tcb[i].skip = tcb[i].currentPriority;                                                                               // set skip count to their priority for now
+            tcb[i].skip = tcb[i].currentPriority;
             //store the name of 'i' task
             strCopy(tcb[i].name,name);
             // increment task count
@@ -687,10 +658,7 @@ void svCallIsr()
             if( semaPT->count > 0)                                      // If semaphore count is not zero -> count --
             {
                 semaPT->count --;
-//                tcb[CurrentTask].semaphore = semaPT;                  // record last task which uses semaphore
-//                tcb[CurrentTask].lastUser  = semaPT;
-//                semaPT->lastUser = semaPT;
-                semaPT->lastUser = CurrentTask; //(uint32_t)tcb[CurrentTask].pid;
+                semaPT->lastUser = CurrentTask;
                 tcb[semaPT->lastUser].semaphore = (void *)funArg;
             }
             else
@@ -698,7 +666,6 @@ void svCallIsr()
                 semaPT->processQueue[semaPT->queueSize] = CurrentTask;  //(uint32_t)tcb[CurrentTask].pid;  // Add Current task to queue
                 semaPT->queueSize++;                                    // once added , increase the size of the queue
                 tcb[CurrentTask].state = STATE_BLOCKED;                 // Mark Current task as a blocked
-//                tcb[CurrentTask].semaphore = semaPT
                 tcb[CurrentTask].semaphore = (void *)funArg;                    // Record Blocked semaphore for current task
 
 
@@ -713,7 +680,6 @@ void svCallIsr()
                         {
                             if(tcb[semaPT->lastUser].currentPriority < tcb[CurrentTask].currentPriority)
                             {
-//                                tcb[semaPT->lastUser].currentPriority = tcb[CurrentTask].currentPriority;   // Give the currentPriority of blocked task to currently
                                 tcb[CurrentTask].currentPriority = tcb[semaPT->lastUser].currentPriority;
                             }
                         }
@@ -1321,7 +1287,7 @@ uint8_t readPbs()
     return pbN;
 }
 
-//------------------https://www.bkstr.com/texasatarlingtonstore/product/specialty-shops/graduation/uta-custom-masters-set-869458-1-----------------------------------------------------------
+//------------------
 // YOUR UNIQUE CODE
 // REQUIRED: add any custom code in this space
 //-----------------------------------------------------------------------------
@@ -1603,16 +1569,6 @@ bool isCommand(char *commandName,int min_arg)
         return false;
 }
 
-//bool iscommand( char *commandName,int min_arg)
-//{
-//    if(min_arg == 1)
-//    {
-//        return true;
-//    }
-//    else
-//        return false;
-//}
-
 int getValue(int argNumber)
 {
     return a2i(&uartStr[offset[argNumber+1]]);
@@ -1746,18 +1702,6 @@ void idle()
         yield();
     }
 }
-
-// aux task just to check 5B working
-//void idle1()
-//{
-//    while(true)
-//    {
-//        GREEN_LED ^= 1;
-//        waitMicrosecond(1000);
-//        GREEN_LED = 0;
-//        yield();
-//    }
-//}
 
 void flash4Hz()
 {
